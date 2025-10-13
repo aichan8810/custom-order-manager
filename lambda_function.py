@@ -1,11 +1,10 @@
+import json
+import Services.OrderManager.Controllers.IndexController as IndexController
 def lambda_handler(event, context):
-    print("Incoming Event:", json.dumps(event))
-    body = event.get("body", "{}")
-    data = json.loads(body)
-    print("✅ Received webhook:", json.dumps(data))
-
+    print("Event:", json.dumps(event))
+    index_controller = IndexController()
+    index_controller.index()
     return {
-        "statusCode": 200,
-        "headers": {"Content-Type": "application/json"},
-        "body": json.dumps({"ok": True})
+        'statusCode': 200,
+        'body': json.dumps({'message': IndexController.index()})
     }
