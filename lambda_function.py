@@ -1,10 +1,23 @@
 import json
-import Services.OrderManager.Controllers.IndexController as IndexController
+
 def lambda_handler(event, context):
-    print("Event:", json.dumps(event))
-    index_controller = IndexController()
-    index_controller.index()
+    # イベント全体をログ出力（デバッグ用）
+    print("Incoming Event:", json.dumps(event))
+
+    # リクエストボディを取得
+    body = event.get("body", "{}")
+
+    # JSONとしてパース（失敗したら文字列のまま）
+    try:
+        data = json.loads(body)
+    except json.JSONDecodeError:
+        data = {"raw": body}
+
+    print("✅ Received webhook:", json.dumps(data, ensure_ascii=False))
+
+    # Shopify（またはcurl）へ 200 OK を返す
     return {
-        'statusCode': 200,
-        'body': json.dumps({'message': IndexController.index()})
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps({"ok": True})
     }
