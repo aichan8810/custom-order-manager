@@ -33,5 +33,5 @@ jobs:
       - name: Deploy to Lambda
         run: |
           aws lambda update-function-code \
-            --function-name your-lambda-function-name \
+            --function-name shopify_app_order_manager \
             --zip-file fileb://deploy.zip
