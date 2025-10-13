@@ -1,10 +1,14 @@
 import json
-import Services.OrderManager.Controllers.IndexController as IndexController
+
 def lambda_handler(event, context):
-    print("Event:", json.dumps(event))
-    index_controller = IndexController()
-    index_controller.index()
-    return {
-        'statusCode': 200,
-        'body': json.dumps({'message': IndexController.index()})
-    }
+    print("Incoming Event:", json.dumps(event))
+    try:
+        body = json.loads(event["body"])
+        print("Shopify webhook payload:", json.dumps(body, indent=2))
+        return {
+            "statusCode": 200,
+            "body": json.dumps({"ok": True})
+        }
+    except Exception as e:
+        print("Error:", str(e))
+        return {"statusCode": 400, "body": str(e)}
