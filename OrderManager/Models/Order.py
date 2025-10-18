@@ -68,15 +68,25 @@ class Order:
 
   # order_item_tに保存する
     def setOrderItem(self, item):
-      dynamoDb = boto3.resource('dynamodb')
-      table = dynamoDb.Table('order_item_t')
-      # oitをパーティションキーとして設定
-      item_with_key = {
-          'oit': str(uuid.uuid4()),  # パーティションキー
-          **item                     # アイテムデータを展開
-      }
-      response = table.put_item(Item=item_with_key)
-      return response
+      try:
+        dynamoDb = boto3.resource('dynamodb')
+        table = dynamoDb.Table('order_item_t')
+
+        # oitをパーティションキーとして設定
+        item_with_key = {
+            'oit': str(uuid.uuid4()),  # パーティションキー
+            **item                     # アイテムデータを展開
+        }
+
+        print(f"🔍 Putting item to order_item_t: {item_with_key}")
+        response = table.put_item(Item=item_with_key)
+        print(f"✅ order_item_t put_item response: {response}")
+        return response
+      except Exception as e:
+        print(f"❌ Error in setOrderItem: {str(e)}")
+        import traceback
+        print(f"❌ Traceback: {traceback.format_exc()}")
+        raise e
     def updateOrderItem(self, oit, data):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_item_t')

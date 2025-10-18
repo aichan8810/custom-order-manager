@@ -68,29 +68,45 @@ class CleaningTicketService:
             order = Order()
             order_id = str(data.get('id', ''))
 
+            print(f"🔍 Processing order items for order_id: {order_id}")
+
             # order_idで注文を取得
             order_data = order.getOrder(order_id)
+            print(f"🔍 Retrieved order data: {order_data}")
+
             if 'error' in order_data:
+                print(f"❌ Order not found: {order_id}")
                 return {
                     "status": "error",
                     "message": f"Order not found: {order_id}"
                 }
 
             # line_itemsを個別にorder_item_tに保存
-            for item in data.get('line_items', []):
+            line_items = data.get('line_items', [])
+            print(f"🔍 Found {len(line_items)} line items to process")
+
+            for i, item in enumerate(line_items):
+                print(f"🔍 Processing item {i+1}: {item}")
+
                 # order_idを各アイテムに追加
                 item_with_order_id = {
                     'order_id': order_id,
                     **item
                 }
-                order.setOrderItem(item_with_order_id)
+                print(f"🔍 Item with order_id: {item_with_order_id}")
+
+                # order_item_tに保存
+                result = order.setOrderItem(item_with_order_id)
+                print(f"✅ Item {i+1} saved to order_item_t: {result}")
 
             return {
                 "status": "success",
-                "message": "Order items saved successfully"
+                "message": f"Order items saved successfully. Processed {len(line_items)} items."
             }
         except Exception as e:
             print(f"❌ Error in CleaningTicketService: {str(e)}")
+            import traceback
+            print(f"❌ Traceback: {traceback.format_exc()}")
             return {
                 "status": "error",
                 "message": str(e)
