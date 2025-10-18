@@ -35,7 +35,7 @@ class CleaningTicketService:
                 'created_at': data.get('created_at', ''),
                 'updated_at': data.get('updated_at', ''),
                 'customer_email': data.get('email', ''),
-                'line_items': line_items
+                'line_items': line_items,
                 'graphql_access_id': data.get('admin_graphql_api_id', ''),
             }
 
@@ -69,6 +69,13 @@ class CleaningTicketService:
             order.getOrder(data['order_id'])
             for item in data['line_items']:
                 order.setOrderItem(item)
+            return {
+                "status": "success",
+                "message": "Order items saved successfully"
+            }
         except Exception as e:
             print(f"❌ Error in CleaningTicketService: {str(e)}")
             return {
+                "status": "error",
+                "message": str(e)
+            }
