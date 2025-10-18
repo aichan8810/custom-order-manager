@@ -1,4 +1,3 @@
-
 """
 order_t
   id: string
@@ -13,7 +12,7 @@ class Order:
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
       item = {
-          'id': order_id,  # order_idをプライマリキーとして使用
+          'id': f"com#{order_id}",  # order_idをプライマリキーとして使用
           'order_name': order_name,
           'created_at': str(uuid.uuid4()),  # 一意のタイムスタンプとして使用
           'status': 'created'
@@ -26,7 +25,7 @@ class Order:
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
       try:
-          response = table.get_item(Key={'id': order_id})
+          response = table.get_item(Key={'id': f"com#{order_id}"})
           if 'Item' in response:
               return response['Item']
           else:
@@ -37,10 +36,10 @@ class Order:
     def updateOrder(self, order_id, data):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
-      response = table.update_item(Key={'id': order_id}, UpdateExpression='set #data = :data', ExpressionAttributeNames={'#data': 'data'}, ExpressionAttributeValues={':data': data})
+      response = table.update_item(Key={'id': f"com#{order_id}"}, UpdateExpression='set #data = :data', ExpressionAttributeNames={'#data': 'data'}, ExpressionAttributeValues={':data': data})
       return response
     def deleteOrder(self, order_id):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
-      response = table.delete_item(Key={'id': order_id})
+      response = table.delete_item(Key={'id': f"com#{order_id}"})
       return response
