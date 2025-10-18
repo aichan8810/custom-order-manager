@@ -66,9 +66,25 @@ class CleaningTicketService:
     def sendItemApiRequest(self, data):
         try:
             order = Order()
-            order.getOrder(data['order_id'])
-            for item in data['line_items']:
-                order.setOrderItem(item)
+            order_id = str(data.get('id', ''))
+
+            # order_idで注文を取得
+            order_data = order.getOrder(order_id)
+            if 'error' in order_data:
+                return {
+                    "status": "error",
+                    "message": f"Order not found: {order_id}"
+                }
+
+            # line_itemsを個別にorder_item_tに保存
+            for item in data.get('line_items', []):
+                # order_idを各アイテムに追加
+                item_with_order_id = {
+                    'order_id': order_id,
+                    **item
+                }
+                order.setOrderItem(item_with_order_id)
+
             return {
                 "status": "success",
                 "message": "Order items saved successfully"
