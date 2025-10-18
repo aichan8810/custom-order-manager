@@ -3,9 +3,26 @@ import sys
 import os
 
 # Lambda関数のルートディレクトリをPythonパスに追加
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+current_dir = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, current_dir)
 
-from OrderManager.Controllers.IndexController import IndexController
+# デバッグ用：パスをログ出力
+print(f"Python path: {sys.path}")
+print(f"Current directory: {current_dir}")
+print(f"Files in current directory: {os.listdir(current_dir)}")
+
+try:
+    from OrderManager.Controllers.IndexController import IndexController
+    print("✅ IndexController imported successfully")
+except ImportError as e:
+    print(f"❌ Import error: {e}")
+    # フォールバック：相対インポートを試す
+    try:
+        from .OrderManager.Controllers.IndexController import IndexController
+        print("✅ IndexController imported with relative import")
+    except ImportError as e2:
+        print(f"❌ Relative import also failed: {e2}")
+        raise e
 
 def lambda_handler(event, context):
     try:

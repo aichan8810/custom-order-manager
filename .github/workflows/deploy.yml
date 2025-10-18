@@ -21,6 +21,7 @@ jobs:
         run: |
           pip install -r requirements.txt -t package
           cp lambda_function.py package/
+          cp -r OrderManager package/
           cd package && zip -r ../deploy.zip .
 
       - name: Configure AWS credentials
