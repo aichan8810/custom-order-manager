@@ -6,5 +6,6 @@ class IndexController:
     def index(self, data):
         if "tags" in data and "クリーニングチケット" in data["tags"]:
             cleaning_ticket_service = CleaningTicketService()
-            return cleaning_ticket_service.sendApiRequest(data)
+            order = cleaning_ticket_service.sendItemApiRequest(data)
+            order_item = cleaning_ticket_service.sendOrderItemApiRequest(data)
         return {"message": "No cleaning ticket found in tags"}
