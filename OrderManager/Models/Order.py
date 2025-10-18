@@ -7,17 +7,20 @@ import json
 import boto3
 import os
 import uuid
+from datetime import datetime
+
 class Order:
-    def setOrder(self, order_id, order_name):
+    def setOrder(self, order_id, order_name, created_at):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
       item = {
-          'com': order_id,  # 'com'キーを直接使用
+          'com': str(uuid.uuid4()),  # 'com'キーを直接使用
+          'order_id': order_id,      # order_idも保存
           'order_name': order_name,
-          'created_at': str(uuid.uuid4()),
+          'created_at': created_at,
           'status': 'created'
       }
-      print(f"🔍 Putting item with key 'com': {order_id}")
+      print(f"🔍 Putting item with key 'com': {item['com']}, order_id: {order_id}")
       response = table.put_item(Item=item)
       print(f"✅ DynamoDB put_item response: {response}")
       return response
@@ -26,9 +29,17 @@ class Order:
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
       try:
-          response = table.get_item(Key={'com': order_id})
-          if 'Item' in response:
-              return response['Item']
+          # order_idで検索するために、comキーの値を取得する必要がある
+          # 現在の実装では、comキーにUUIDが設定されているため、
+          # 直接order_idで検索することはできない
+          # 代わりに、Scan操作でorder_idを含むアイテムを検索
+          response = table.scan(
+              FilterExpression='order_id = :order_id',
+              ExpressionAttributeValues={':order_id': order_id}
+          )
+
+          if response['Items']:
+              return response['Items'][0]  # 最初のマッチしたアイテムを返す
           else:
               return {"error": "Order not found"}
       except Exception as e:
