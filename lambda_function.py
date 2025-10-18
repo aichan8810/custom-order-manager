@@ -1,5 +1,11 @@
 import json
-import OrderManager.Controllers.IndexController as IndexController
+import sys
+import os
+
+# Lambda関数のルートディレクトリをPythonパスに追加
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from OrderManager.Controllers.IndexController import IndexController
 
 def lambda_handler(event, context):
     try:

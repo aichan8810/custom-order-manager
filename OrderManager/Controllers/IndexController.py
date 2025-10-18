@@ -1,4 +1,4 @@
-import OrderManager.Services.CleaningTicketService as CleaningTicketService
+from OrderManager.Services.CleaningTicketService import CleaningTicketService
 
 class IndexController:
     def __init__(self):

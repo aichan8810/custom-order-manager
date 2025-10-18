@@ -1,4 +1,4 @@
-import OrderManager.Models.Order as Order
+from OrderManager.Models.Order import Order
 import uuid
 
 class CleaningTicketService:
@@ -7,7 +7,7 @@ class CleaningTicketService:
 
     def sendApiRequest(self, data):
         try:
-            order = Order.Order()
+            order = Order()
             # データから注文名を取得（適切なキーに修正）
             order_name = data.get('data', {}).get('name', 'Unknown Order')
             order_id = data.get('order_id', str(uuid.uuid4()))
