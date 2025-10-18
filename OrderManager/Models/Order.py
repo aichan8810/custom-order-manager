@@ -13,14 +13,14 @@ class Order:
     def setOrder(self, order_data):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
-      
+
       # プライマリキーとステータスを追加
       item = {
           'com': str(uuid.uuid4()),  # プライマリキー
           'status': 'created',       # ステータス
           **order_data               # 注文データを展開
       }
-      
+
       print(f"🔍 Putting item with key 'com': {item['com']}, order_id: {order_data.get('order_id')}")
       response = table.put_item(Item=item)
       print(f"✅ DynamoDB put_item response: {response}")
@@ -57,8 +57,33 @@ class Order:
       table = dynamoDb.Table('order_t')
       response = table.update_item(Key={'com': order_id}, UpdateExpression='set #data = :data', ExpressionAttributeNames={'#data': 'data'}, ExpressionAttributeValues={':data': data})
       return response
+
     def deleteOrder(self, order_id):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
       response = table.delete_item(Key={'com': order_id})
+      return response
+
+
+
+  # order_item_tに保存する
+    def setOrderItem(self, item):
+      dynamoDb = boto3.resource('dynamodb')
+      table = dynamoDb.Table('order_item_t')
+      # oitをパーティションキーとして設定
+      item_with_key = {
+          'oit': str(uuid.uuid4()),  # パーティションキー
+          **item                     # アイテムデータを展開
+      }
+      response = table.put_item(Item=item_with_key)
+      return response
+    def updateOrderItem(self, oit, data):
+      dynamoDb = boto3.resource('dynamodb')
+      table = dynamoDb.Table('order_item_t')
+      response = table.update_item(Key={'oit': oit}, UpdateExpression='set #data = :data', ExpressionAttributeNames={'#data': 'data'}, ExpressionAttributeValues={':data': data})
+      return response
+    def deleteOrderItem(self, oit):
+      dynamoDb = boto3.resource('dynamodb')
+      table = dynamoDb.Table('order_item_t')
+      response = table.delete_item(Key={'oit': oit})
       return response

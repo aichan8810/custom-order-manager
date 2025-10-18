@@ -19,7 +19,6 @@ class CleaningTicketService:
                     'variant_title': item.get('variant_title'),
                     'quantity': item.get('quantity'),
                     'price': item.get('price'),
-                    'gift_card': item.get('gift_card', False)
                 }
                 line_items.append(line_item)
 
@@ -36,9 +35,8 @@ class CleaningTicketService:
                 'created_at': data.get('created_at', ''),
                 'updated_at': data.get('updated_at', ''),
                 'customer_email': data.get('email', ''),
-                'customer_locale': data.get('customer_locale', ''),
-                'browser_ip': data.get('browser_ip', ''),
                 'line_items': line_items
+                'graphql_access_id': data.get('admin_graphql_api_id', ''),
             }
 
             print(f"🔍 Extracted order data: {order_data}")
@@ -63,3 +61,14 @@ class CleaningTicketService:
                 "status": "error",
                 "message": str(e)
             }
+
+    # order_tに保存した情報を、line_item 単位でorder_item_tに保存する
+    def sendItemApiRequest(self, data):
+        try:
+            order = Order()
+            order.getOrder(data['order_id'])
+            for item in data['line_items']:
+                order.setOrderItem(item)
+        except Exception as e:
+            print(f"❌ Error in CleaningTicketService: {str(e)}")
+            return {
