@@ -47,7 +47,18 @@ def lambda_handler(event, context):
         if "tags" in data and "クリーニングチケット" in data["tags"]:
             print("🎫 Cleaning ticket detected, processing...")
             result = index_controller.index(data)
-            print("✅ Processing result:", json.dumps(result, ensure_ascii=False))
+
+            # JSONシリアライゼーション用のヘルパー関数
+            def json_serializer(obj):
+                if hasattr(obj, 'to_integral_value'):  # Decimal型のチェック
+                    return int(obj)
+                raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
+
+            try:
+                print("✅ Processing result:", json.dumps(result, ensure_ascii=False, default=json_serializer))
+            except Exception as e:
+                print(f"❌ JSON serialization error: {e}")
+                print("Raw result:", result)
 
             # 結果にエラーが含まれているかチェック
             if isinstance(result, dict) and result.get("status") == "error":
@@ -55,7 +66,7 @@ def lambda_handler(event, context):
                 return {
                     "statusCode": 500,
                     "headers": {"Content-Type": "application/json"},
-                    "body": json.dumps({"error": "Processing failed", "details": result})
+                    "body": json.dumps({"error": "Processing failed", "details": result}, default=json_serializer)
                 }
         else:
             print("ℹ️ No cleaning ticket found in tags, skipping processing")

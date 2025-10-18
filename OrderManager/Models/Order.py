@@ -10,17 +10,18 @@ import uuid
 from datetime import datetime
 
 class Order:
-    def setOrder(self, order_id, order_name, created_at):
+    def setOrder(self, order_data):
       dynamoDb = boto3.resource('dynamodb')
       table = dynamoDb.Table('order_t')
+      
+      # プライマリキーとステータスを追加
       item = {
-          'com': str(uuid.uuid4()),  # 'com'キーを直接使用
-          'order_id': order_id,      # order_idも保存
-          'order_name': order_name,
-          'created_at': created_at,
-          'status': 'created'
+          'com': str(uuid.uuid4()),  # プライマリキー
+          'status': 'created',       # ステータス
+          **order_data               # 注文データを展開
       }
-      print(f"🔍 Putting item with key 'com': {item['com']}, order_id: {order_id}")
+      
+      print(f"🔍 Putting item with key 'com': {item['com']}, order_id: {order_data.get('order_id')}")
       response = table.put_item(Item=item)
       print(f"✅ DynamoDB put_item response: {response}")
       return response
@@ -39,7 +40,13 @@ class Order:
           )
 
           if response['Items']:
-              return response['Items'][0]  # 最初のマッチしたアイテムを返す
+              item = response['Items'][0]  # 最初のマッチしたアイテムを取得
+
+              # Decimal型をJSONシリアライズ可能な型に変換
+              if 'order_id' in item and hasattr(item['order_id'], 'to_integral_value'):
+                  item['order_id'] = int(item['order_id'])
+
+              return item
           else:
               return {"error": "Order not found"}
       except Exception as e:
